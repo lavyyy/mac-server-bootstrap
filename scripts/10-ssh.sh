@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Enabling SSH (Remote Login)..."
-systemsetup -setremotelogin on >/dev/null
+echo "Enabling SSH (Remote Login) via launchd..."
+
+# Enable and start sshd (safe if already enabled)
+launchctl enable system/com.openssh.sshd >/dev/null 2>&1 || true
+launchctl kickstart -k system/com.openssh.sshd >/dev/null 2>&1 || true
 
 # Optional authorized_keys install
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -36,3 +39,6 @@ if [[ -f "$KEY_FILE" ]]; then
 else
   echo "No config/admin_authorized_keys found; skipping key install."
 fi
+
+echo "SSH enable step complete."
+exit 0
