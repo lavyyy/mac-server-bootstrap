@@ -75,15 +75,28 @@ PASSFILE="$PASSDIR/passwd"
 mkdir -p "$PASSDIR"
 chmod 755 "$PASSDIR"
 
-# Create password file (storepasswd typically reads password from stdin and writes the file)
-# If your build prompts interactively and this fails, the script will stop and tell you.
 echo "Creating VNC password file..."
-if ! printf '%s\n' "$VNC_PASSWORD" | "$STOREPASS_BIN" "$PASSFILE" >/dev/null 2>&1; then
-  echo "storepasswd failed non-interactively."
-  echo "Try once manually on the Mac mini:"
-  echo "  sudo \"$STOREPASS_BIN\" \"$PASSFILE\""
+set +e
+# Style A: storepasswd reads password from stdin:  printf pw | storepasswd file
+printf '%s\n' "$OSXVNC_PASSWORD" | "$STOREPASS_BIN" "$PASSFILE" >/dev/null 2>&1
+RC1=$?
+
+# Style B: storepasswd expects args: storepasswd <password> <file>
+if [[ $RC1 -ne 0 ]]; then
+  "$STOREPASS_BIN" "$OSXVNC_PASSWORD" "$PASSFILE" >/dev/null 2>&1
+  RC2=$?
+else
+  RC2=0
+fi
+set -e
+
+if [[ $RC1 -ne 0 && $RC2 -ne 0 ]]; then
+  echo "storepasswd failed in both stdin and argv modes."
+  echo "Try manually:"
+  echo "  sudo \"$STOREPASS_BIN\" \"<password>\" \"$PASSFILE\""
   exit 1
 fi
+
 
 if [[ ! -s "$PASSFILE" ]]; then
   echo "Password file not created at $PASSFILE"
