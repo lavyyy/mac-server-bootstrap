@@ -26,12 +26,12 @@ echo "macOS: $(sw_vers -productVersion)  build: $(sw_vers -buildVersion)"
 ENV_FILE="${ENV_FILE:-$REPO_DIR/.env}"
 
 ALLOW_KEYS=(
-  X11VNC_PASSWORD
+  REALVNC_VNC_PASSWORD
   TS_AUTHKEY
   TS_HOSTNAME
   TS_EXTRA_ARGS
   RUN_TAILSCALE
-  RUN_X11VNC
+  RUN_REALVNC
   RUN_HARDENING
 )
 
@@ -82,7 +82,7 @@ load_env_file "$ENV_FILE"
 
 # Defaults for toggles
 : "${RUN_TAILSCALE:=1}"
-: "${RUN_X11VNC:=1}"
+: "${RUN_REALVNC:=1}"
 : "${RUN_HARDENING:=1}"
 
 run_script() {
@@ -102,10 +102,10 @@ else
   echo "Skipping Tailscale step (RUN_TAILSCALE=$RUN_TAILSCALE)"
 fi
 
-if [[ "$RUN_X11VNC" == "1" ]]; then
-  run_script "31-x11vnc.sh"
+if [[ "$RUN_REALVNC" == "1" ]]; then
+  run_script "31-realvnc.sh"
 else
-  echo "Skipping x11vnc step (RUN_X11VNC=$RUN_X11VNC)"
+  echo "Skipping realvnc step (RUN_REALVNC=$RUN_REALVNC)"
 fi
 
 if [[ "$RUN_HARDENING" == "1" ]]; then
