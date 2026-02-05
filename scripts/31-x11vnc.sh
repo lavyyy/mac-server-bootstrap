@@ -79,7 +79,33 @@ else
 fi
 
 echo "Building x11vnc (as user)..."
-run_as_user "cd \"$REPO_DIR\" && ./autogen.sh && ./configure && make -j\"$(sysctl -n hw.ncpu)\""
+run_as_user "
+  set -euo pipefail
+  cd \"$REPO_DIR\"
+
+  # Some forks have autogen.sh, others require autoreconf, others ship configure already.
+  if [[ -x ./autogen.sh ]]; then
+    echo 'Using ./autogen.sh'
+    ./autogen.sh
+  elif command -v autoreconf >/dev/null 2>&1; then
+    echo 'Using autoreconf -fi'
+    autoreconf -fi
+  else
+    echo 'No autogen.sh and no autoreconf found'
+    exit 1
+  fi
+
+  if [[ -x ./configure ]]; then
+    ./configure
+  else
+    echo 'configure script not found after bootstrap step'
+    ls -la
+    exit 1
+  fi
+
+  make -j\"$(sysctl -n hw.ncpu)\"
+"
+
 
 echo "Installing x11vnc (requires sudo)..."
 # make install writes into /usr/local/bin, needs privileges
