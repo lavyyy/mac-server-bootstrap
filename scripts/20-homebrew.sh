@@ -69,10 +69,10 @@ run_as_user "$BREW update"
 
 if [[ -f "$PKG_FILE" ]]; then
   echo "Installing brew packages from $PKG_FILE"
-  while IFS= read -r pkg; do
+  while IFS= read -r pkg || [[ -n "$pkg" ]]; do
     [[ -z "$pkg" ]] && continue
     [[ "$pkg" =~ ^# ]] && continue
-    run_as_user "$BREW list \"$pkg\" >/dev/null 2>&1 || $BREW install \"$pkg\""
+    run_as_user "$BREW list \"$pkg\" >/dev/null 2>&1 || $BREW install \"$pkg\"" < /dev/null
   done < "$PKG_FILE"
 else
   echo "No config/brew-packages.txt found; skipping package install."
