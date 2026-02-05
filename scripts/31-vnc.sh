@@ -78,12 +78,12 @@ chmod 755 "$PASSDIR"
 echo "Creating VNC password file..."
 set +e
 # Style A: storepasswd reads password from stdin:  printf pw | storepasswd file
-printf '%s\n' "$OSXVNC_PASSWORD" | "$STOREPASS_BIN" "$PASSFILE" >/dev/null 2>&1
+printf '%s\n' "$VNC_PASSWORD" | "$STOREPASS_BIN" "$PASSFILE" >/dev/null 2>&1
 RC1=$?
 
 # Style B: storepasswd expects args: storepasswd <password> <file>
 if [[ $RC1 -ne 0 ]]; then
-  "$STOREPASS_BIN" "$OSXVNC_PASSWORD" "$PASSFILE" >/dev/null 2>&1
+  "$STOREPASS_BIN" "$VNC_PASSWORD" "$PASSFILE" >/dev/null 2>&1
   RC2=$?
 else
   RC2=0
